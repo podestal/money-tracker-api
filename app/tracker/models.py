@@ -26,6 +26,7 @@ class Transaction(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     date = models.DateTimeField(default=timezone.now)
     description = models.TextField(blank=True, null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     def save(self, *args, **kwargs):
         print(self.user)
