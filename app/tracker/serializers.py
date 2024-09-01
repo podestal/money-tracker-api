@@ -6,18 +6,27 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Category
-        fields = '__all__'
+        fields = ['id', 'name']
 
+    def create(self, validated_data):
+
+        user = self.context['request'].user
+        return models.Category.objects.create(user=user, **validated_data)
 
 class BalanceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Balance
-        fields = '__all__'
+        fields = ['id', 'amount']
 
 
 class TransactionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Transaction
-        fields = '__all__'
+        fields = ['id', 'transaction_type', 'amount', 'created_at', 'updated_at', 'description', 'category']
+
+    def create(self, validated_data):
+        
+        user = self.context['request'].user
+        return models.Transaction.objects.create(user=user, **validated_data)
