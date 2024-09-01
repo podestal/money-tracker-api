@@ -1,7 +1,8 @@
-from typing import Iterable
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
+
+from .utilities import normalize_balance
 
 
 class Category(models.Model):
@@ -29,5 +30,23 @@ class Transaction(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     def save(self, *args, **kwargs):
-        print(self.user)
+
+        balance, created = Balance.objects.get_or_create(user=self.user)
+
+        if self.pk:
+            normalize_balance(balance, self.pk, self.user)
+        
+        if self.transaction_type == 'IN':
+            balance.amount += self.amount
+        else:
+            balance.amount -= self.amount
+
+        balance.save()
         super().save(*args, **kwargs)
+
+    # def delete(self, *args, **kwargs):
+
+    #     balance = Balance.objects.get(user=self.user)
+
+    
+    
