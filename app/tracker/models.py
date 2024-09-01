@@ -1,7 +1,5 @@
 from django.db import models
 from django.conf import settings
-from django.utils import timezone
-
 from .utilities import normalize_balance
 
 
@@ -25,9 +23,11 @@ class Transaction(models.Model):
 
     transaction_type = models.CharField(max_length=3, choices=TRANSACTION_TYPE_COICES)
     amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    date = models.DateTimeField(default=timezone.now)
+    created_at = models.DateField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     description = models.TextField(blank=True, null=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
 
     def save(self, *args, **kwargs):
 
@@ -35,7 +35,7 @@ class Transaction(models.Model):
 
         if self.pk:
             normalize_balance(balance, self.pk, self.user)
-        
+
         if self.transaction_type == 'IN':
             balance.amount += self.amount
         else:
