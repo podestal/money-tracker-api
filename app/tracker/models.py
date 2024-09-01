@@ -1,10 +1,13 @@
+"""
+Models for Tracker api
+"""
 from django.db import models
 from django.conf import settings
 from .utilities import normalize_balance
 
 
 class Category(models.Model):
-
+    """Categoty model"""
     name = models.CharField(max_length=255)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
@@ -13,7 +16,7 @@ class Category(models.Model):
 
 
 class Balance(models.Model):
-
+    """Balance model"""
     amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
@@ -22,7 +25,7 @@ class Balance(models.Model):
 
 
 class Transaction(models.Model):
-    
+    """Transaction model"""
     TRANSACTION_TYPE_COICES = [
         ('IN', 'Income'),
         ('OUT', 'Expense'),
@@ -40,7 +43,7 @@ class Transaction(models.Model):
         return self.transaction_type
 
     def save(self, *args, **kwargs):
-
+        """Create or update a transaction, updating the current balance"""
         balance, created = Balance.objects.get_or_create(user=self.user)
 
         if self.pk:
@@ -55,7 +58,7 @@ class Transaction(models.Model):
         super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
-
+        """Delete the transaction, updating the current balance"""
         balance = Balance.objects.get(user=self.user)
 
         normalize_balance(balance, self.pk, self.user)

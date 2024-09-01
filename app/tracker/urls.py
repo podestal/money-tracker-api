@@ -1,3 +1,6 @@
+"""
+Urls for tracker api
+"""
 from rest_framework_nested import routers
 from . import views
 
