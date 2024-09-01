@@ -44,9 +44,14 @@ class Transaction(models.Model):
         balance.save()
         super().save(*args, **kwargs)
 
-    # def delete(self, *args, **kwargs):
+    def delete(self, *args, **kwargs):
 
-    #     balance = Balance.objects.get(user=self.user)
+        balance = Balance.objects.get(user=self.user)
+
+        normalize_balance(balance, self.pk, self.user)
+
+        balance.save()
+        super().delete(*args, **kwargs)
 
     
     
