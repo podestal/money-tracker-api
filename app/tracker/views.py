@@ -3,6 +3,9 @@ Tracker Views
 """
 from rest_framework.viewsets import ModelViewSet
 from rest_framework import permissions
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework import status
 from . import models
 from . import serializers
 
@@ -28,7 +31,18 @@ class BalanceViewSet(ModelViewSet):
         """Retrieves filtered balance for authenticated users, and all for superuser"""
         if self.request.user.is_superuser:
             return models.Balance.objects.select_related('user')
-        return models.Balance.objects.filter(user=self.user).select_related('user')
+        # Return an empty queryset by default for non-superusers
+        return models.Balance.objects.none()
+    
+    @action(detail=False, methods=['get'], url_path='me')
+    def get_balance_for_authenticated_user(self, request):
+        """Return the balance of the authenticated user or create one if it doesn't exist"""
+        # Get or create the balance for the authenticated user
+        balance, created = models.Balance.objects.get_or_create(user=request.user)
+        
+        # Serialize the balance object
+        serializer = serializers.BalanceSerializer(balance)
+        return Response(serializer.data)
 
 
 class TransactionViewSet(ModelViewSet):
