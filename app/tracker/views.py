@@ -53,5 +53,5 @@ class TransactionViewSet(ModelViewSet):
     def get_queryset(self):
         """Retrieves filtered transactions for authenticated users, and all for superuser"""
         if self.request.user.is_superuser:
-            return models.Transaction.objects.select_related('user', 'category')
-        return models.Transaction.objects.filter(user=self.user).select_related('user', 'category')
+            return models.Transaction.objects.select_related('user', 'category').order_by('-created_at')
+        return models.Transaction.objects.filter(user=self.user).select_related('user', 'category').order_by('-created_at')
