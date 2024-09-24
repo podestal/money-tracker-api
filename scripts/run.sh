@@ -18,4 +18,4 @@ python manage.py migrate
 # --master: Enables the master process to manage workers.
 # --enable-threads: Allows threads to be used within worker processes.
 # --module app.wsgi: Specifies the WSGI application module (app.wsgi) to use.
-uwsgi --socket :9000 --workers 4 --master --enable-threads --module app.wsgi
+gunicorn moneyTracker.wsgi:application --bind 0.0.0.0:8000

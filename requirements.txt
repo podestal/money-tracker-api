@@ -13,9 +13,11 @@ djangorestframework-simplejwt==5.3.1
 djoser==2.2.3
 drf-nested-routers==0.94.1
 flake8==7.1.1
+gunicorn==23.0.0
 idna==3.8
 mccabe==0.7.0
 oauthlib==3.2.2
+packaging==24.1
 psycopg2==2.9.9
 pycodestyle==2.12.1
 pycparser==2.22
