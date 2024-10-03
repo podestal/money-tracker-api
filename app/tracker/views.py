@@ -95,18 +95,29 @@ class TransactionViewSet(ModelViewSet):
 
 
 class ProjectViewSet(ModelViewSet):
+    """Project ViewSet"""
 
     serializer_class = serializers.ProjectSerializer
     permission_classes = [permissions.IsAuthenticated]
+    queryset = models.Project.objects.select_related("user").order_by("-id")
 
     def get_queryset(self):
-
+        """Retrieves filtered projects for authenticated users,
+        and all for superuser"""
         if not self.request.user.is_superuser:
-            return models.Project.objects.filter(user=self.user).select_related("user")
-        return models.Project.objects.select_related("user")
+            return self.queryset.filter(user=self.user)
+        return self.queryset.all()
 
 
 class TaskViewSet(ModelViewSet):
 
-    queryset = models.Task.objects.all()
     serializer_class = serializers.TaskSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = models.Task.objects.select_related("project", "user").order_by("-id")
+
+    def get_queryset(self):
+        """Retrieves filtered tasks for authenticated users,
+        and all for superuser"""
+        if not self.request.user.is_superuser:
+            return self.queryset.filter(user=self.user)
+        return self.queryset.all()
