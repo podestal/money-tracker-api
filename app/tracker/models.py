@@ -1,6 +1,7 @@
 """
 Models for Tracker api
 """
+
 from django.db import models
 from django.conf import settings
 from .utilities import normalize_balance
@@ -8,6 +9,7 @@ from .utilities import normalize_balance
 
 class Category(models.Model):
     """Categoty model"""
+
     name = models.CharField(max_length=255)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
@@ -17,6 +19,7 @@ class Category(models.Model):
 
 class Balance(models.Model):
     """Balance model"""
+
     amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
@@ -26,10 +29,11 @@ class Balance(models.Model):
 
 class Transaction(models.Model):
     """Transaction model"""
+
     TRANSACTION_TYPE_COICES = [
-        ('IN', 'Income'),
-        ('OUT', 'Expense'),
-    ]   
+        ("IN", "Income"),
+        ("OUT", "Expense"),
+    ]
 
     transaction_type = models.CharField(max_length=3, choices=TRANSACTION_TYPE_COICES)
     amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
@@ -49,7 +53,7 @@ class Transaction(models.Model):
         if self.pk:
             normalize_balance(balance, self.pk, self.user)
 
-        if self.transaction_type == 'IN':
+        if self.transaction_type == "IN":
             balance.amount += self.amount
         else:
             balance.amount -= self.amount
@@ -66,5 +70,40 @@ class Transaction(models.Model):
         balance.save()
         super().delete(*args, **kwargs)
 
-    
-    
+
+class Project(models.Model):
+    """Project Model"""
+
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    end_date = models.DateField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
+
+
+class Task(models.Model):
+    """Task Model"""
+
+    STATUS_CHOICES = [
+        ("N", "Not Started"),
+        ("P", "In Progress"),
+        ("R", "In Review"),
+        ("C", "Completed"),
+    ]
+
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="tasks")
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default="N")
+    priority = models.PositiveIntegerField(default=0)
+    due_date = models.DateField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
