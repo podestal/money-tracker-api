@@ -53,7 +53,11 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Project
-        fields = "__all__"
+        fields = ["id", "name", "description", "end_date", "created_at", "updated_at"]
+
+    def create(self, validated_data):
+        user = self.context["request"].user
+        return models.Project.objects.create(user=user, **validated_data)
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -61,4 +65,18 @@ class TaskSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Task
-        fields = "__all__"
+        fields = [
+            "id",
+            "project",
+            "name",
+            "description",
+            "status",
+            "priority",
+            "due_date",
+            "created_at",
+            "updated_at",
+        ]
+
+    def create(self, validated_data):
+        user = self.context["request"].user
+        return models.Task.objects.create(user=user, **validated_data)
