@@ -119,5 +119,7 @@ class TaskViewSet(ModelViewSet):
         """Retrieves filtered tasks for authenticated users,
         and all for superuser"""
         if not self.request.user.is_superuser:
-            return self.queryset.filter(user=self.user)
-        return self.queryset.all()
+            return self.queryset.filter(
+                user=self.user, project_id=self.kwargs["projects_pk"]
+            )
+        return self.queryset.filter(project_id=self.kwargs["projects_pk"])
