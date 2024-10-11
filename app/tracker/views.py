@@ -70,7 +70,7 @@ class TransactionViewSet(ModelViewSet):
         ).order_by("-id")
 
         if not self.request.user.is_superuser:
-            queryset = queryset.filter(user=self.user)
+            queryset = queryset.filter(user=self.request.user)
 
         created_at = self.request.query_params.get("created_at")
 
