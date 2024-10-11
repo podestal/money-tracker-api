@@ -122,6 +122,6 @@ class TaskViewSet(ModelViewSet):
         and all for superuser"""
         if not self.request.user.is_superuser:
             return self.queryset.filter(
-                user=self.user, project_id=self.kwargs["projects_pk"]
+                user=self.request.user, project_id=self.kwargs["projects_pk"]
             )
         return self.queryset.filter(project_id=self.kwargs["projects_pk"])
