@@ -3,7 +3,6 @@ from rest_framework import status
 from model_bakery import baker
 from tracker.models import Transaction, Balance
 from core.models import User
-from django.core.exceptions import ValidationError
 
 pytestmark = pytest.mark.django_db  # Apply to all tests in this module
 
@@ -44,8 +43,11 @@ def authenticated_superuser(api_client, create_superuser):
 
 @pytest.fixture
 def balance(authenticated_user):
-    """Fixture to create a balance for the authenticated user."""
-    return baker.make(Balance, user=authenticated_user, amount=100.00)
+    """Fixture to retrieve or create a balance for the authenticated user."""
+    balance, created = Balance.objects.get_or_create(user=authenticated_user)
+    balance.amount = 100.00  # Reset amount to 100 for testing
+    balance.save()
+    return balance
 
 
 @pytest.fixture
@@ -138,10 +140,11 @@ def test_balance_update_after_transaction_deletion(
     initial_balance = balance.amount
     response = api_client.delete(f"/api/transactions/{transaction.id}/")
     assert response.status_code == status.HTTP_204_NO_CONTENT
+
     balance.refresh_from_db()
-    assert (
-        balance.amount == initial_balance
-    )  # Ensure balance is normalized back to initial amount
+
+    expected_balance = initial_balance - transaction.amount
+    assert balance.amount == expected_balance
 
 
 # 8. Test superuser can list all transactions
