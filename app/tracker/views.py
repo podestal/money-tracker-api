@@ -26,7 +26,9 @@ class CategoryViewSet(ModelViewSet):
         and all for superuser"""
         if self.request.user.is_superuser:
             return models.Category.objects.select_related("user")
-        return models.Category.objects.filter(user=self.user).select_related("user")
+        return models.Category.objects.filter(user=self.request.user).select_related(
+            "user"
+        )
 
 
 class BalanceViewSet(ModelViewSet):

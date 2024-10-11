@@ -88,6 +88,9 @@ DATABASES = {
         "NAME": os.environ.get("DB_NAME"),
         "USER": os.environ.get("DB_USER"),
         "PASSWORD": os.environ.get("DB_PASS"),
+        "TEST": {
+            "NAME": "test_my_database",
+        },
     }
 }
 
@@ -154,3 +157,5 @@ SIMPLE_JWT = {
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
 ]
+
+DJANGO_SETTINGS_MODULE = "moneyTracker.settings pytest"
