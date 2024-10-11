@@ -107,7 +107,7 @@ class ProjectViewSet(ModelViewSet):
         """Retrieves filtered projects for authenticated users,
         and all for superuser"""
         if not self.request.user.is_superuser:
-            return self.queryset.filter(user=self.user)
+            return self.queryset.filter(user=self.request.user)
         return self.queryset.all()
 
 
