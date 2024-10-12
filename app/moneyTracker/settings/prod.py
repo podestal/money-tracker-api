@@ -1,7 +1,7 @@
 from .base import *
 
 DEBUG = False
-ALLOWED_HOSTS = ["88.88.4.4"]
+ALLOWED_HOSTS = ["127.0.0.1", "*"]
 
 # Use PostgreSQL for production
 DATABASES = {
@@ -15,6 +15,6 @@ DATABASES = {
 }
 
 # Other production-specific settings
-SECURE_SSL_REDIRECT = True
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
+# SECURE_SSL_REDIRECT = True
+# CSRF_COOKIE_SECURE = True
+# SESSION_COOKIE_SECURE = True
