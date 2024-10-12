@@ -13,6 +13,7 @@ import calendar
 
 from . import models
 from . import serializers
+from . import permissions as own_permissions
 
 
 class CategoryViewSet(ModelViewSet):
@@ -114,14 +115,14 @@ class ProjectViewSet(ModelViewSet):
 class TaskViewSet(ModelViewSet):
 
     serializer_class = serializers.TaskSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, own_permissions.IsOwnerOfProject]
     queryset = models.Task.objects.select_related("project", "user").order_by("-id")
 
     def get_queryset(self):
-        """Retrieves filtered tasks for authenticated users,
-        and all for superuser"""
+        """Retrieves filtered tasks for authenticated users, and all for superuser"""
         if not self.request.user.is_superuser:
+            # Ensure the user can only access tasks for projects they own
             return self.queryset.filter(
-                user=self.request.user, project_id=self.kwargs["projects_pk"]
+                project__user=self.request.user, project_id=self.kwargs["projects_pk"]
             )
         return self.queryset.filter(project_id=self.kwargs["projects_pk"])

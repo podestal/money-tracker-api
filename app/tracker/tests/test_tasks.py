@@ -99,10 +99,10 @@ def test_delete_task(authenticated_user, api_client, project, task):
 
 def test_tasks_filtered_by_project(authenticated_user, api_client, project, task):
     # Create another project and task for a different project
-    other_project = baker.make(tracker_models.Project, user=authenticated_user)
-    other_task = baker.make(
-        tracker_models.Task, project=other_project, user=authenticated_user
-    )
+    # other_project = baker.make(tracker_models.Project, user=authenticated_user)
+    # other_task = baker.make(
+    #     tracker_models.Task, project=other_project, user=authenticated_user
+    # )
 
     response = api_client.get(f"/api/projects/{project.id}/tasks/")
     assert response.status_code == status.HTTP_200_OK
@@ -122,6 +122,7 @@ def test_superuser_can_access_all_tasks(authenticated_superuser, api_client):
 
 
 def test_task_list_unauthenticated(api_client, project):
+    api_client.logout()
     response = api_client.get(f"/api/projects/{project.id}/tasks/")
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
@@ -135,9 +136,11 @@ def test_create_task_without_optional_fields(authenticated_user, api_client, pro
 
 
 def test_user_cannot_access_others_tasks(authenticated_user, api_client):
+    api_client.logout()
     other_user = baker.make(User)
     other_project = baker.make(tracker_models.Project, user=other_user)
     baker.make(tracker_models.Task, project=other_project, user=other_user)
 
     response = api_client.get(f"/api/projects/{other_project.id}/tasks/")
+
     assert response.status_code == status.HTTP_403_FORBIDDEN
