@@ -1,7 +1,9 @@
 from .base import *
 
 DEBUG = False
-ALLOWED_HOSTS = ["127.0.0.1", "*"]
+ALLOWED_HOSTS.extend(
+    filter(None, os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(","))
+)
 
 # Use PostgreSQL for production
 DATABASES = {
