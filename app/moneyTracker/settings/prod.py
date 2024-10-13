@@ -20,3 +20,8 @@ DATABASES = {
 # SECURE_SSL_REDIRECT = True
 # CSRF_COOKIE_SECURE = True
 # SESSION_COOKIE_SECURE = True
+
+CORS_ALLOWED_ORIGINS = []
+CORS_ALLOWED_ORIGINS.extend(
+    filter(None, os.environ.get("DJANGO_CORS_ALLOWED_ORIGINS", "").split(","))
+)
