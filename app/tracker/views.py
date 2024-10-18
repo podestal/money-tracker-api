@@ -6,6 +6,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework import permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django_filters.rest_framework import DjangoFilterBackend
 
 from django.utils.timezone import make_aware
 from datetime import datetime
@@ -27,9 +28,7 @@ class CategoryViewSet(ModelViewSet):
         and all for superuser"""
         if self.request.user.is_superuser:
             return models.Category.objects.select_related("user")
-        return models.Category.objects.filter(user=self.request.user).select_related(
-            "user"
-        )
+        return models.Category.objects.filter(user=self.request.user).select_related("user")
 
 
 class BalanceViewSet(ModelViewSet):
@@ -66,9 +65,7 @@ class TransactionViewSet(ModelViewSet):
     def get_queryset(self):
         """Retrieves filtered transactions for authenticated users,
         and all for superuser"""
-        queryset = models.Transaction.objects.select_related(
-            "user", "category"
-        ).order_by("-id")
+        queryset = models.Transaction.objects.select_related("user", "category").order_by("-id")
 
         if not self.request.user.is_superuser:
             queryset = queryset.filter(user=self.request.user)
@@ -103,6 +100,8 @@ class ProjectViewSet(ModelViewSet):
     serializer_class = serializers.ProjectSerializer
     permission_classes = [permissions.IsAuthenticated]
     queryset = models.Project.objects.select_related("user").order_by("-id")
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["is_active"]
 
     def get_queryset(self):
         """Retrieves filtered projects for authenticated users,

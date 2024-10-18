@@ -57,6 +57,11 @@ def project_data():
     }
 
 
+def test_get_projects_unauthenticated_return_401(api_client, project):
+    response = api_client.get("/api/projects/")
+    assert response.status_code == status.HTTP_200_OK
+
+
 def test_create_project(authenticated_user, api_client, project_data):
     response = api_client.post("/api/projects/", project_data)
     assert response.status_code == status.HTTP_201_CREATED

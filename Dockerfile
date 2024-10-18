@@ -24,9 +24,9 @@ RUN python -m venv /py && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     adduser \
-        --disabled-password \
-        --no-create-home \
-        django-user && \
+    --disabled-password \
+    --no-create-home \
+    django-user && \
     mkdir -p /vol/web/media && \
     mkdir -p /vol/web/static && \
     chown -R django-user:django-user /vol && \

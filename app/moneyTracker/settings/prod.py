@@ -1,9 +1,7 @@
 from .base import *
 
 DEBUG = False
-ALLOWED_HOSTS.extend(
-    filter(None, os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(","))
-)
+ALLOWED_HOSTS.extend(filter(None, os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(",")))
 
 # Use PostgreSQL for production
 DATABASES = {
@@ -15,11 +13,6 @@ DATABASES = {
         "PASSWORD": os.environ.get("DB_PASS"),
     }
 }
-
-# Other production-specific settings
-# SECURE_SSL_REDIRECT = True
-# CSRF_COOKIE_SECURE = True
-# SESSION_COOKIE_SECURE = True
 
 CORS_ALLOWED_ORIGINS = []
 CORS_ALLOWED_ORIGINS.extend(
