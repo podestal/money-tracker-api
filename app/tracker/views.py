@@ -99,7 +99,7 @@ class ProjectViewSet(ModelViewSet):
 
     serializer_class = serializers.ProjectSerializer
     permission_classes = [permissions.IsAuthenticated]
-    queryset = models.Project.objects.select_related("user").order_by("-id")
+    queryset = models.Project.objects.select_related("user").order_by("-updated_at")
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["is_active"]
 
@@ -115,7 +115,7 @@ class TaskViewSet(ModelViewSet):
 
     serializer_class = serializers.TaskSerializer
     permission_classes = [permissions.IsAuthenticated, own_permissions.IsOwnerOfProject]
-    queryset = models.Task.objects.select_related("project", "user").order_by("-id")
+    queryset = models.Task.objects.select_related("project", "user").order_by("-updated_at")
 
     def get_queryset(self):
         """Retrieves filtered tasks for authenticated users, and all for superuser"""
