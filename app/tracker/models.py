@@ -2,6 +2,7 @@
 Models for Tracker api
 """
 
+from django.utils import timezone
 from django.db import models
 from django.conf import settings
 from .utilities import normalize_balance
@@ -108,3 +109,16 @@ class Task(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        project = self.project
+        super().save(*args, **kwargs)
+        project.updated_at = timezone.now()
+        project.save()
+
+    def delete(self, *args, **kwargs):
+
+        project = self.project
+        super().delete(*args, **kwargs)
+        project.updated_at = timezone.now()
+        project.save()
