@@ -97,6 +97,16 @@ class TestTask:
         response = admin_user.get(f"/api/projects/{project_1.id}/tasks/")
         assert response.status_code == status.HTTP_200_OK
 
+    def test_create_task_updates_project(self, authenticated_user, create_project, task_data):
+
+        initial_updated_at = create_project.updated_at
+        response = authenticated_user.post(f"/api/projects/{create_project.id}/tasks/", task_data)
+
+        assert response.status_code == status.HTTP_201_CREATED
+
+        create_project.refresh_from_db()
+        assert create_project.updated_at > initial_updated_at
+
     def test_create_task_for_project_unauthenticated_return_401(
         self, api_client, create_project, task_data
     ):
@@ -131,6 +141,18 @@ class TestTask:
         create_task.refresh_from_db()
         assert create_task.name == "Updated Task"
 
+    def test_update_task_updates_project(self, authenticated_user, create_project, create_task):
+        initial_updated_at = create_project.updated_at
+        data = {"name": "Updated Task"}
+        response = authenticated_user.patch(
+            f"/api/projects/{create_project.id}/tasks/{create_task.id}/", data
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+
+        create_project.refresh_from_db()
+        assert create_project.updated_at > initial_updated_at
+
     def test_delete_task_for_project_unauthenticated_return_401(
         self, api_client, create_project, create_task
     ):
@@ -145,3 +167,14 @@ class TestTask:
         )
         assert response.status_code == status.HTTP_204_NO_CONTENT
         assert not models.Task.objects.filter(id=create_task.id).exists()
+
+    def test_delete_task_updates_project(self, authenticated_user, create_project, create_task):
+
+        initial_updated_at = create_project.updated_at
+        response = authenticated_user.delete(
+            f"/api/projects/{create_project.id}/tasks/{create_task.id}/"
+        )
+        assert response.status_code == 204
+
+        create_project.refresh_from_db()
+        assert create_project.updated_at > initial_updated_at
