@@ -58,10 +58,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "moneyTracker.wsgi.application"
 
 # Static and media settings
-STATIC_URL = "/static/static/"
-MEDIA_URL = "/static/media/"
-MEDIA_ROOT = "/vol/web/media"
-STATIC_ROOT = "/vol/web/static"
+STATIC_URL = "static/"
 
 AUTH_USER_MODEL = "core.User"
 
