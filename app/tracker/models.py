@@ -38,7 +38,7 @@ class Transaction(models.Model):
 
     transaction_type = models.CharField(max_length=3, choices=TRANSACTION_TYPE_COICES)
     amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    created_at = models.DateField(auto_now_add=True)
+    created_at = models.DateField(blank=True)
     updated_at = models.DateTimeField(auto_now=True)
     description = models.TextField(blank=True, null=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
