@@ -19,6 +19,7 @@ services:
       - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
       - DJANGO_SETTINGS_MODULE=moneyTracker.settings.prod
       - DJANGO_CORS_ALLOWED_ORIGINS=${DJANGO_CORS_ALLOWED_ORIGINS}
+      - ENVIRONMENT=${ENVIRONMENT}
     depends_on:
       - db
 
@@ -42,6 +43,8 @@ services:
     image: nginx:latest
     links:
       - app
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT}
 
 volumes:
   dev-db-data:
