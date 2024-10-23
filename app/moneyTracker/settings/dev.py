@@ -11,8 +11,6 @@ DATABASES = {
     }
 }
 
-STATIC_URL = "static/"
-
 # Additional development-specific settings
 INSTALLED_APPS += ["debug_toolbar"]
 MIDDLEWARE += ["debug_toolbar.middleware.DebugToolbarMiddleware"]

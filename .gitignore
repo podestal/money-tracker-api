@@ -7,3 +7,4 @@ db.sqlite3
 schema.yml
 .vscode
 htmlcov
+staticfiles
