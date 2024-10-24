@@ -71,18 +71,8 @@ def test_list_categories(authenticated_user, api_client, category):
     assert response.data[0]["name"] == category.name
 
 
-# 4. Test superuser gets all categories
-def test_superuser_gets_all_categories(authenticated_superuser, api_client):
-    baker.make(Category, _quantity=5)  # Create 5 categories for different users
-    response = api_client.get("/api/categories/")
-    assert response.status_code == status.HTTP_200_OK
-    assert len(response.data) == 5  # Superuser should get all categories
-
-
 # 5. Test normal user cannot access another user’s categories
-def test_normal_user_cannot_access_other_users_categories(
-    authenticated_user, api_client
-):
+def test_normal_user_cannot_access_other_users_categories(authenticated_user, api_client):
     other_user = baker.make(User)
     other_user_category = baker.make(Category, user=other_user)
     response = api_client.get("/api/categories/")
@@ -111,17 +101,7 @@ def test_user_cannot_delete_other_users_categories(authenticated_user, api_clien
     other_user = baker.make(User)
     other_user_category = baker.make(Category, user=other_user)
     response = api_client.delete(f"/api/categories/{other_user_category.id}/")
-    assert (
-        response.status_code == status.HTTP_404_NOT_FOUND
-    )  # Not found for unauthorized access
-
-
-# 9. Test superuser can delete any category
-def test_superuser_can_delete_any_category(authenticated_superuser, api_client):
-    user_category = baker.make(Category)
-    response = api_client.delete(f"/api/categories/{user_category.id}/")
-    assert response.status_code == status.HTTP_204_NO_CONTENT
-    assert not Category.objects.filter(id=user_category.id).exists()
+    assert response.status_code == status.HTTP_404_NOT_FOUND  # Not found for unauthorized access
 
 
 # 10. Test validation for creating a category with an empty name

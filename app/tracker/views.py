@@ -26,8 +26,8 @@ class CategoryViewSet(ModelViewSet):
     def get_queryset(self):
         """Retrieves filtered categories for authenticated users
         and all for superuser"""
-        if self.request.user.is_superuser:
-            return models.Category.objects.select_related("user")
+        # if self.request.user.is_superuser:
+        #     return models.Category.objects.select_related("user")
         return models.Category.objects.filter(user=self.request.user).select_related("user")
 
 
@@ -39,8 +39,8 @@ class BalanceViewSet(ModelViewSet):
 
     def get_queryset(self):
         """Retrieves filtered balance for authenticated users, and all for superuser"""
-        if self.request.user.is_superuser:
-            return models.Balance.objects.select_related("user")
+        # if self.request.user.is_superuser:
+        #     return models.Balance.objects.select_related("user")
         # Return an empty queryset by default for non-superusers
         return models.Balance.objects.none()
 
@@ -65,10 +65,14 @@ class TransactionViewSet(ModelViewSet):
     def get_queryset(self):
         """Retrieves filtered transactions for authenticated users,
         and all for superuser"""
-        queryset = models.Transaction.objects.select_related("user", "category").order_by("-id")
+        queryset = (
+            models.Transaction.objects.filter(user=self.request.user)
+            .select_related("user", "category")
+            .order_by("-id")
+        )
 
-        if not self.request.user.is_superuser:
-            queryset = queryset.filter(user=self.request.user)
+        # if not self.request.user.is_superuser:
+        #     queryset = queryset.filter(user=self.request.user)
 
         created_at = self.request.query_params.get("created_at")
 
@@ -106,9 +110,10 @@ class ProjectViewSet(ModelViewSet):
     def get_queryset(self):
         """Retrieves filtered projects for authenticated users,
         and all for superuser"""
-        if not self.request.user.is_superuser:
-            return self.queryset.filter(user=self.request.user)
-        return self.queryset.all()
+        # if not self.request.user.is_superuser:
+        #     return self.queryset.filter(user=self.request.user)
+        # return self.queryset.all()
+        return self.queryset.filter(user=self.request.user)
 
 
 class TaskViewSet(ModelViewSet):
@@ -119,9 +124,12 @@ class TaskViewSet(ModelViewSet):
 
     def get_queryset(self):
         """Retrieves filtered tasks for authenticated users, and all for superuser"""
-        if not self.request.user.is_superuser:
-            # Ensure the user can only access tasks for projects they own
-            return self.queryset.filter(
-                project__user=self.request.user, project_id=self.kwargs["projects_pk"]
-            )
-        return self.queryset.filter(project_id=self.kwargs["projects_pk"])
+        # if not self.request.user.is_superuser:
+        #     # Ensure the user can only access tasks for projects they own
+        #     return self.queryset.filter(
+        #         project__user=self.request.user, project_id=self.kwargs["projects_pk"]
+        #     )
+        # return self.queryset.filter(project_id=self.kwargs["projects_pk"])
+        return self.queryset.filter(
+            project__user=self.request.user, project_id=self.kwargs["projects_pk"]
+        )
