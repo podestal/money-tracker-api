@@ -65,12 +65,15 @@ class TestTransaction:
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
     def test_create_transaction_authenticated_return_201(
-        self, authenticated_user, transaction_data
+        self, authenticated_user, transaction_data, create_balance
     ):
+        initial_balance = create_balance.amount
         response = authenticated_user.post("/api/transactions/", transaction_data)
         assert response.status_code == status.HTTP_201_CREATED
         assert response.data["amount"] == 20.00
         assert Transaction.objects.filter(description="Test Expense", amount=20.00).exists()
+        create_balance.refresh_from_db()
+        assert create_balance.amount == initial_balance - transaction_data["amount"]
 
     def test_update_transaction_unauthenticated_return_401(self, api_client, create_transaction):
         update_data = {"description": "New Expense Description"}
@@ -88,6 +91,21 @@ class TestTransaction:
         create_transaction.refresh_from_db()
         assert create_transaction.description == "New Expense Description"
 
+    def test_update_transaction_authenticated_adjusts_balance(
+        self, authenticated_user, create_transaction, create_balance
+    ):
+        initial_balance = create_balance.amount
+
+        update_data = {"transaction_type": "OUT", "amount": 30.00}
+        response = authenticated_user.patch(
+            f"/api/transactions/{create_transaction.id}/", update_data
+        )
+        assert response.status_code == status.HTTP_200_OK
+        create_balance.refresh_from_db()
+
+        adjusted_balance = initial_balance - update_data["amount"] - create_transaction.amount
+        assert create_balance.amount == adjusted_balance
+
     def test_delete_project_unauthenticated_return_401(self, api_client, create_transaction):
         response = api_client.delete(f"/api/transactions/{create_transaction.id}/")
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
@@ -96,3 +114,15 @@ class TestTransaction:
         response = authenticated_user.delete(f"/api/transactions/{create_transaction.id}/")
         assert response.status_code == status.HTTP_204_NO_CONTENT
         assert not Transaction.objects.filter(id=create_transaction.id).exists()
+
+    def test_delete_transaction_authenticated_updates_balance(
+        self, authenticated_user, create_transaction, create_balance
+    ):
+        initial_balance = create_balance.amount
+        transaction_amount = create_transaction.amount
+
+        response = authenticated_user.delete(f"/api/transactions/{create_transaction.id}/")
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        create_balance.refresh_from_db()
+
+        assert create_balance.amount == initial_balance - transaction_amount

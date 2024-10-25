@@ -3,8 +3,6 @@ from rest_framework import status
 from model_bakery import baker
 from tracker.models import Balance
 
-# from core.models import User
-
 
 @pytest.fixture
 def create_balance(create_user):
