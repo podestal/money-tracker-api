@@ -19,12 +19,14 @@ def create_project(create_user):
 @pytest.fixture
 def create_task(create_user, create_project):
     """Fixture to create a task for the authenticated user."""
+    owner = create_user
     return baker.make(
         models.Task,
         project=create_project,
         user=create_user,
         name="New Task",
         description="Test description",
+        owner=owner,
         status="N",
         priority=1,
         due_date="2024-12-31",
@@ -47,6 +49,7 @@ def create_tasks(create_user, create_project):
             project=create_project,
             user=create_user,
             name=task_name,
+            owner=create_user,
             description="Test description",
             status="N",
             priority=1,
@@ -57,7 +60,7 @@ def create_tasks(create_user, create_project):
 
 
 @pytest.fixture
-def task_data(create_project):
+def task_data(create_project, create_user):
     """Fixture to provide task data."""
     return {
         "project": create_project.id,
@@ -65,6 +68,7 @@ def task_data(create_project):
         "description": "Test task description",
         "status": "N",
         "priority": 1,
+        "owner": create_user.id,
         "due_date": "2024-12-31",
     }
 
@@ -120,6 +124,26 @@ class TestTask:
         assert response.status_code == status.HTTP_201_CREATED
         assert response.data["name"] == task_data["name"]
         assert models.Task.objects.filter(name=task_data["name"]).exists()
+
+    def test_create_task_for_project_with_owner(
+        self, authenticated_user, create_project, task_data
+    ):
+        """Test that the task is created with the specified owner."""
+        response = authenticated_user.post(f"/api/projects/{create_project.id}/tasks/", task_data)
+        assert response.status_code == status.HTTP_201_CREATED
+        assert response.data["name"] == task_data["name"]
+        assert response.data["owner"] == task_data["owner"]
+        assert models.Task.objects.filter(name=task_data["name"], owner=task_data["owner"]).exists()
+
+    def test_create_task_without_owner(self, authenticated_user, create_project, task_data):
+        """Test creating a task without specifying an owner (should be optional)."""
+        task_data.pop("owner")
+
+        response = authenticated_user.post(f"/api/projects/{create_project.id}/tasks/", task_data)
+
+        assert response.status_code == status.HTTP_201_CREATED
+        task = models.Task.objects.get(id=response.data["id"])
+        assert task.owner is None
 
     def test_update_task_for_project_unauthenticated_return_401(
         self, api_client, create_project, create_task
@@ -178,3 +202,11 @@ class TestTask:
 
         create_project.refresh_from_db()
         assert create_project.updated_at > initial_updated_at
+
+    def test_delete_task_clears_owner(self, authenticated_user, create_project, create_task):
+        """Test that deleting a task removes the owner relationship."""
+        response = authenticated_user.delete(
+            f"/api/projects/{create_project.id}/tasks/{create_task.id}/"
+        )
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        assert not models.Task.objects.filter(id=create_task.id).exists()
