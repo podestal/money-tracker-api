@@ -115,9 +115,16 @@ class ProjectViewSet(ModelViewSet):
 
 class TaskViewSet(ModelViewSet):
 
-    serializer_class = serializers.TaskSerializer
+    # serializer_class = serializers.TaskSerializer
     permission_classes = [permissions.IsAuthenticated, own_permissions.IsOwnerOfProject]
     queryset = models.Task.objects.select_related("project", "user").order_by("-updated_at")
+
+    def get_serializer_class(self):
+        if self.request.method == "POST":
+            return serializers.CreateTaskSerializer
+        if self.request.method in ["PUT", "PATCH"]:
+            return serializers.UpdateTaskSerializer
+        return serializers.GetTaskSerializer
 
     def get_queryset(self):
         """Retrieves filtered tasks for authenticated users, and all for superuser"""

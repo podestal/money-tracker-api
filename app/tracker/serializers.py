@@ -60,8 +60,8 @@ class ProjectSerializer(serializers.ModelSerializer):
         return models.Project.objects.create(user=user, **validated_data)
 
 
-class TaskSerializer(serializers.ModelSerializer):
-    """Project serializer"""
+class GetTaskSerializer(serializers.ModelSerializer):
+    """Get Task serializer"""
 
     class Meta:
         model = models.Task
@@ -76,6 +76,40 @@ class TaskSerializer(serializers.ModelSerializer):
             "due_date",
             "created_at",
             "updated_at",
+            "user",
+        ]
+
+
+class UpdateTaskSerializer(serializers.ModelSerializer):
+    """Update Task serializer"""
+
+    class Meta:
+        model = models.Task
+        fields = [
+            "project",
+            "name",
+            "description",
+            "status",
+            "priority",
+            "owner",
+            "due_date",
+            "created_at",
+            "updated_at",
+        ]
+
+
+class CreateTaskSerializer(serializers.ModelSerializer):
+    """Create Task serializer"""
+
+    class Meta:
+        model = models.Task
+        fields = [
+            "id",
+            "project",
+            "name",
+            "priority",
+            "owner",
+            "due_date",
         ]
 
     def create(self, validated_data):
