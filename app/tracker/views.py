@@ -68,7 +68,7 @@ class TransactionViewSet(ModelViewSet):
         queryset = (
             models.Transaction.objects.filter(user=self.request.user)
             .select_related("user", "category")
-            .order_by("-id")
+            .order_by("-id", "-created_at")
         )
 
         created_at = self.request.query_params.get("created_at")
