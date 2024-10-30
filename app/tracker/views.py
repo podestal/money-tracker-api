@@ -68,7 +68,7 @@ class TransactionViewSet(ModelViewSet):
         queryset = (
             models.Transaction.objects.filter(user=self.request.user)
             .select_related("user", "category")
-            .order_by("-id", "-created_at")
+            .order_by("-created_at", "-id")
         )
 
         created_at = self.request.query_params.get("created_at")
@@ -117,7 +117,11 @@ class TaskViewSet(ModelViewSet):
 
     # serializer_class = serializers.TaskSerializer
     permission_classes = [permissions.IsAuthenticated, own_permissions.IsOwnerOfProject]
-    queryset = models.Task.objects.select_related("project", "user").order_by("-updated_at")
+    queryset = (
+        models.Task.objects.select_related("project", "user")
+        .prefetch_related("owner")
+        .order_by("-updated_at")
+    )
 
     def get_serializer_class(self):
         if self.request.method == "POST":
@@ -128,12 +132,6 @@ class TaskViewSet(ModelViewSet):
 
     def get_queryset(self):
         """Retrieves filtered tasks for authenticated users, and all for superuser"""
-        # if not self.request.user.is_superuser:
-        #     # Ensure the user can only access tasks for projects they own
-        #     return self.queryset.filter(
-        #         project__user=self.request.user, project_id=self.kwargs["projects_pk"]
-        #     )
-        # return self.queryset.filter(project_id=self.kwargs["projects_pk"])
         return self.queryset.filter(
             project__user=self.request.user, project_id=self.kwargs["projects_pk"]
         )

@@ -4,6 +4,7 @@ Serializers for Tracker
 
 from . import models
 from rest_framework import serializers
+from djoser.serializers import UserSerializer
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -62,6 +63,8 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 class GetTaskSerializer(serializers.ModelSerializer):
     """Get Task serializer"""
+
+    owner = UserSerializer()
 
     class Meta:
         model = models.Task
