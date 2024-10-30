@@ -139,6 +139,14 @@ class TaskViewSet(ModelViewSet):
 
 class TeamViewSet(ModelViewSet):
 
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
     queryset = models.Team.objects.select_related("user").prefetch_related("members")
-    serializer_class = serializers.TeamSerializer
+
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
+
+    def get_serializer_class(self):
+
+        if self.request.method == "POST":
+            return serializers.CreateTeamSerializer
+        return serializers.GetTeamSerializer

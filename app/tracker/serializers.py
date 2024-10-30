@@ -120,9 +120,27 @@ class CreateTaskSerializer(serializers.ModelSerializer):
         return models.Task.objects.create(user=user, **validated_data)
 
 
-class TeamSerializer(serializers.ModelSerializer):
-    """Team Serializer"""
+class GetTeamSerializer(serializers.ModelSerializer):
+    """Get Team Serializer"""
+
+    members = UserSerializer(many=True)
 
     class Meta:
         model = models.Team
-        fields = "__all__"
+        fields = ["id", "user", "members"]
+
+
+class CreateTeamSerializer(serializers.ModelSerializer):
+    """Create Team Serializer"""
+
+    class Meta:
+        model = models.Team
+        fields = ["members"]
+
+    def create(self, validated_data):
+        members = validated_data.pop("members", [])
+        user = self.context["request"].user
+        team = models.Team.objects.create(user=user)
+        team.members.set(members)
+
+        return team
