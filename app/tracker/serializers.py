@@ -118,3 +118,11 @@ class CreateTaskSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = self.context["request"].user
         return models.Task.objects.create(user=user, **validated_data)
+
+
+class TeamSerializer(serializers.ModelSerializer):
+    """Team Serializer"""
+
+    class Meta:
+        model = models.Team
+        fields = "__all__"

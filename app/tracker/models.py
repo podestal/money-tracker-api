@@ -72,6 +72,18 @@ class Transaction(models.Model):
         super().delete(*args, **kwargs)
 
 
+class Team(models.Model):
+    """Team Model"""
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="team"
+    )
+    members = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="teams")
+
+    def __str__(self):
+        return f"Team for {self.project.name}"
+
+
 class Project(models.Model):
     """Project Model"""
 

@@ -135,3 +135,10 @@ class TaskViewSet(ModelViewSet):
         return self.queryset.filter(
             project__user=self.request.user, project_id=self.kwargs["projects_pk"]
         )
+
+
+class TeamViewSet(ModelViewSet):
+
+    # permission_classes = [permissions.IsAuthenticated]
+    queryset = models.Team.objects.select_related("user").prefetch_related("members")
+    serializer_class = serializers.TeamSerializer
