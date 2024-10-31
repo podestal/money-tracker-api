@@ -34,7 +34,26 @@ class TestTeam:
     def test_get_teams_authenticated_return_200(self, authenticated_user, create_team):
         response = authenticated_user.get("/api/teams/")
         assert response.status_code == status.HTTP_200_OK
-        assert len(response.data) == 1  # Only one team created by fixture
+        assert len(response.data) == 1
+
+    def test_get_team_me_authenticated_existing_team(self, authenticated_user, create_team):
+        """
+        Test that the /me endpoint returns the existing team for the authenticated user.
+        """
+        response = authenticated_user.get("/api/teams/me/")
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["id"] == create_team.id
+        assert response.data["user"] == create_team.user.id
+        assert len(response.data["members"]) == create_team.members.count()
+
+    def test_get_team_me_authenticated_no_existing_team(self, authenticated_user):
+        response = authenticated_user.get("/api/teams/me/")
+        assert response.status_code == status.HTTP_200_OK
+        assert models.Team.objects.count() == 1
+        team = models.Team.objects.first()
+        assert response.data["id"] == team.id
+        assert response.data["user"] == authenticated_user.handler._force_user.id
+        assert len(response.data["members"]) == 0
 
     def test_create_team_unauthenticated_return_401(self, api_client, team_data):
         response = api_client.post("/api/teams/", team_data)
