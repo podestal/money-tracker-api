@@ -76,6 +76,11 @@ DJOSER = {
         "user": ["rest_framework.permissions.AllowAny"],
         "user_list": ["rest_framework.permissions.AllowAny"],
     },
+    "SERIALIZERS": {
+        "current_user": "core.serializers.UserSerializer",
+        "user": "core.serializers.UserSerializer",
+        "user_create": "core.serializers.CreateUserSerializer",
+    },
 }
 
 SIMPLE_JWT = {
