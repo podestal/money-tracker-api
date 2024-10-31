@@ -39,9 +39,6 @@ class BalanceViewSet(ModelViewSet):
 
     def get_queryset(self):
         """Retrieves filtered balance for authenticated users, and all for superuser"""
-        # if self.request.user.is_superuser:
-        #     return models.Balance.objects.select_related("user")
-        # Return an empty queryset by default for non-superusers
         return models.Balance.objects.none()
 
     @action(detail=False, methods=["get"], url_path="me")
@@ -150,3 +147,14 @@ class TeamViewSet(ModelViewSet):
         if self.request.method in ["POST", "PUT", "PATCH"]:
             return serializers.CreateTeamSerializer
         return serializers.GetTeamSerializer
+
+    @action(detail=False, methods=["get"], url_path="me")
+    def get_team(self, request):
+        """Return the team of the authenticated user or create one if it doesn't exist"""
+        team, created = (
+            models.Team.objects.select_related("user")
+            .prefetch_related("members")
+            .get_or_create(user=request.user)
+        )
+        serializer = serializers.GetTeamSerializer(team)
+        return Response(serializer.data)
