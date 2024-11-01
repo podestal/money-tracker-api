@@ -4,7 +4,7 @@ Serializers for Tracker
 
 from . import models
 from rest_framework import serializers
-from djoser.serializers import UserSerializer
+from core.serializers import UserSerializer
 
 
 class CategorySerializer(serializers.ModelSerializer):
