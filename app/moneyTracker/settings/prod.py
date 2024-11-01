@@ -23,3 +23,8 @@ CORS_ALLOWED_ORIGINS = ["http://localhost:5173"]
 CORS_ALLOWED_ORIGINS.extend(
     filter(None, os.environ.get("DJANGO_CORS_ALLOWED_ORIGINS", "").split(","))
 )
+
+CSRF_TRUSTED_ORIGINS = []
+CSRF_TRUSTED_ORIGINS.extend(
+    filter(None, os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(","))
+)
