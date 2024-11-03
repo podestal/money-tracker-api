@@ -47,14 +47,20 @@ class TransactionSerializer(serializers.ModelSerializer):
         """Crates a transaction using the user info in the request"""
         user = self.context["request"].user
         return models.Transaction.objects.create(user=user, **validated_data)
-
-
-class ProjectSerializer(serializers.ModelSerializer):
-    """Project serializer"""
+    
+class GetProjectSerializer(serializers.ModelSerializer):
+    """Get Project serializer"""
 
     class Meta:
         model = models.Project
         fields = ["id", "name", "description", "end_date", "created_at", "updated_at", "is_active", "participants"]
+
+class CreateProjectSerializer(serializers.ModelSerializer):
+    """Project serializer"""
+
+    class Meta:
+        model = models.Project
+        fields = ["id", "name", "description", "end_date", "updated_at"]
 
     def create(self, validated_data):
         user = self.context["request"].user

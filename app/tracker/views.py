@@ -93,12 +93,15 @@ class TransactionViewSet(ModelViewSet):
 
 class ProjectViewSet(ModelViewSet):
     """Project ViewSet"""
-
-    serializer_class = serializers.ProjectSerializer
     permission_classes = [permissions.IsAuthenticated]
     queryset = models.Project.objects.select_related("user").prefetch_related('participants').order_by("-updated_at")
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["is_active"]
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return serializers.CreateProjectSerializer
+        return serializers.GetProjectSerializer
 
     def get_queryset(self):
         """Retrieves filtered projects for authenticated users,
