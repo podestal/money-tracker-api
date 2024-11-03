@@ -90,6 +90,7 @@ class Project(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
+    participants = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="projects")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -129,6 +130,8 @@ class Task(models.Model):
     def save(self, *args, **kwargs):
         project = self.project
         super().save(*args, **kwargs)
+        if self.owner and self.owner not in project.participants.all():
+            project.participants.add(self.owner)
         project.updated_at = timezone.now()
         project.save()
 

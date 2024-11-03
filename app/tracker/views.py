@@ -16,7 +16,6 @@ from . import models
 from . import serializers
 from . import permissions as own_permissions
 
-
 class CategoryViewSet(ModelViewSet):
     """Category viewset"""
 
@@ -97,7 +96,7 @@ class ProjectViewSet(ModelViewSet):
 
     serializer_class = serializers.ProjectSerializer
     permission_classes = [permissions.IsAuthenticated]
-    queryset = models.Project.objects.select_related("user").order_by("-updated_at")
+    queryset = models.Project.objects.select_related("user").prefetch_related('participants').order_by("-updated_at")
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["is_active"]
 

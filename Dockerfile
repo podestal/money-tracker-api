@@ -25,11 +25,11 @@ RUN python -m venv /py && \
     rm -rf /var/lib/apt/lists/* && \
     adduser \
     --disabled-password \
-    --no-create-home \
+    --home /home/django-user \
     django-user && \
     mkdir -p /vol/web/media && \
     mkdir -p /vol/web/static && \
-    chown -R django-user:django-user /vol && \
+    chown -R django-user:django-user /vol /home/django-user && \
     chmod -R 755 /vol && \
     chmod -R +x /scripts && \
     rm -rf /tmp  # Move tmp cleanup to the end
