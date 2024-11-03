@@ -2,6 +2,7 @@ import pytest
 from model_bakery import baker
 from rest_framework import status
 from tracker import models
+from core.models import User
 
 
 @pytest.fixture
@@ -31,6 +32,10 @@ def create_project(create_user):
         end_date="2024-12-31",
     )
 
+@pytest.fixture
+def create_user_owner():
+    """Fixture to create a separate user for task ownership."""
+    return baker.make(User)
 
 @pytest.fixture
 def project_data():
@@ -92,3 +97,13 @@ class TestProject:
         response = authenticated_user.delete(f"/api/projects/{create_project.id}/")
         assert response.status_code == status.HTTP_204_NO_CONTENT
         assert not models.Project.objects.filter(id=create_project.id).exists()
+
+    def test_task_owner_added_to_project_participants(self, create_project, create_user_owner):
+        task = baker.make(
+            models.Task,
+            project=create_project,
+            name="Test Task",
+            owner=create_user_owner
+        )
+        create_project.refresh_from_db()
+        assert create_user_owner in create_project.participants.all()
