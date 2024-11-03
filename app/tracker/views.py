@@ -7,6 +7,8 @@ from rest_framework import permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
+from django.db.models import Q
+
 
 from django.utils.timezone import make_aware
 from datetime import datetime
@@ -99,22 +101,20 @@ class ProjectViewSet(ModelViewSet):
     filterset_fields = ["is_active"]
 
     def get_serializer_class(self):
-        if self.request.method == 'POST':
+        if self.request.method in ['POST', 'PUT', 'PATCH']:
             return serializers.CreateProjectSerializer
         return serializers.GetProjectSerializer
 
     def get_queryset(self):
         """Retrieves filtered projects for authenticated users,
         and all for superuser"""
-        # if not self.request.user.is_superuser:
-        #     return self.queryset.filter(user=self.request.user)
-        # return self.queryset.all()
-        return self.queryset.filter(user=self.request.user)
+        return self.queryset.filter(
+            Q(user=self.request.user) | Q(participants=self.request.user)
+        ).distinct()
 
 
 class TaskViewSet(ModelViewSet):
 
-    # serializer_class = serializers.TaskSerializer
     permission_classes = [permissions.IsAuthenticated, own_permissions.IsOwnerOfProject]
     queryset = (
         models.Task.objects.select_related("project", "user")
@@ -132,7 +132,8 @@ class TaskViewSet(ModelViewSet):
     def get_queryset(self):
         """Retrieves filtered tasks for authenticated users, and all for superuser"""
         return self.queryset.filter(
-            project__user=self.request.user, project_id=self.kwargs["projects_pk"]
+            Q(project__user=self.request.user, project_id=self.kwargs["projects_pk"]) |
+            Q(project__participants=self.request.user, project_id=self.kwargs["projects_pk"])
         )
 
 

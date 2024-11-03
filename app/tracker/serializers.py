@@ -53,7 +53,7 @@ class GetProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Project
-        fields = ["id", "name", "description", "end_date", "created_at", "updated_at", "is_active", "participants"]
+        fields = ["id", "name", "description", "end_date", "created_at", "updated_at", "is_active", "participants", "user"]
 
 class CreateProjectSerializer(serializers.ModelSerializer):
     """Project serializer"""
