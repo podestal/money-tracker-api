@@ -115,12 +115,16 @@ class ProjectViewSet(ModelViewSet):
 
 class TaskViewSet(ModelViewSet):
 
-    permission_classes = [permissions.IsAuthenticated, own_permissions.IsOwnerOfProject]
     queryset = (
         models.Task.objects.select_related("project", "user")
         .prefetch_related("owner")
         .order_by("-updated_at")
     )
+
+    def get_permissions(self):
+        if self.request.method in ['DELETE', 'POST']:
+            return [own_permissions.IsOwnerOfProject()]
+        return [permissions.IsAuthenticated()]
 
     def get_serializer_class(self):
         if self.request.method == "POST":
@@ -133,7 +137,7 @@ class TaskViewSet(ModelViewSet):
         """Retrieves filtered tasks for authenticated users, and all for superuser"""
         return self.queryset.filter(
             Q(project__user=self.request.user, project_id=self.kwargs["projects_pk"]) |
-            Q(project__participants=self.request.user, project_id=self.kwargs["projects_pk"])
+            Q(owner=self.request.user, project_id=self.kwargs["projects_pk"])
         )
 
 
